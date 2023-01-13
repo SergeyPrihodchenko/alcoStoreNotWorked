@@ -1,0 +1,15 @@
+{
+    "name": "alco/gallery",
+    "autoload": {
+        "psr-4": {
+            "Alco\\Gallery\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sergey",
+            "email": "S.prihodchenko@yandex.ru"
+        }
+    ],
+    "require": {}
+}
