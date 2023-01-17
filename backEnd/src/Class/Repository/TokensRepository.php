@@ -3,6 +3,7 @@
 namespace Alco\Gallery\Class\Repository;
 
 use Alco\Gallery\Class\Token\Token;
+use DateTimeImmutable;
 use Exception;
 use PDO;
 
@@ -17,11 +18,29 @@ class TokensRepository {
     public function save(Token $token): void
     {
         try {
-            $statement = $this->connect->prepare("INSERT INTO token (token, name, expires_on) VALUES (:token, :name, expires_on) ON CONFLICT (token) DO UPDATE SET expires_on = :expires_on;");
+
+            $query = <<<'SQL'
+            INSERT INTO token (
+                token,
+                name,
+                expires_on,
+                id_user
+            ) VALUES (
+                :token,
+                :name,
+                :expires_on,
+                :id_user
+            )
+            ON CONFLICT (token) DO UPDATE SET
+            expires_on = :expires_on
+        SQL;
+
+            $statement = $this->connect->prepare($query);
             $statement->execute([
                 ':token' => $token->token(),
                 ':name' => $token->name(),
-                ':expires_on' => $token->expiresOn()
+                ':expires_on' => $token->expiresOn()->format(DateTimeImmutable::ATOM),
+                ':id_user' => $token->id()
             ]);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -31,12 +50,12 @@ class TokensRepository {
     public function getToken($token): Token
     {
         try {
-            $statement = $this->connect->query("SELECT * FROM token WHERE token = $token");
+            $statement = $this->connect->query("SELECT * FROM token WHERE token = '$token';");
             $dataToken = $statement->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage()); 
+            throw new Exception($token); 
         }
-        return new Token($dataToken['token'], $dataToken['name'], $dataToken['id_user'], $dataToken['expiresOn']);
+        return new Token($dataToken['token'], $dataToken['name'], $dataToken['id_user'], new DateTimeImmutable($dataToken['expires_on']));
     }
 
 }

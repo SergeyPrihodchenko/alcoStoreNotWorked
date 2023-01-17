@@ -1,6 +1,7 @@
 <?php
 
-use Alco\Gallery\Class\HTTP\Action\Authentication;
+use Alco\Gallery\Class\HTTP\Action\AuthenticationPass;
+use Alco\Gallery\Class\HTTP\Action\AuthenticationToken;
 use Alco\Gallery\Class\HTTP\Request\Request;
 use Alco\Gallery\Class\HTTP\Response\ErrorResponse;
 
@@ -27,13 +28,14 @@ try {
 }
 
 $routes = [
-    'ACTION' => [
-        'AUTHENTICATION' => Authentication::class
+    'POST' => [
+        'AUTHENTICATION' => AuthenticationPass::class,
+        'AUTHTOKEN' => AuthenticationToken::class
     ]
 ];
 
 if(!array_key_exists($method, $routes)) {
-    (new ErrorResponse("Route not found: $method $path"))->send();
+    (new ErrorResponse("Route not found: $method"))->send();
     return;
 }
 

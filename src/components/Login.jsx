@@ -2,29 +2,13 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import LoginIcon from '@mui/icons-material/Login';
-import DialogTitle from '@mui/material/DialogTitle';
-import Dialog from '@mui/material/Dialog';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import FormLogin from './FormLogin';
 import { Link } from 'react-router-dom';
+import SimpleDialog from './SimpleDialog';
+import LogoutIcon from '@mui/icons-material/Logout';
 
-
-function SimpleDialog(props) {
-    const { onClose, selectedValue, open } = props;
-  
-    const handleClose = () => {
-      onClose(selectedValue);
-    };
-  
-    return (
-      <Dialog onClose={handleClose} open={open}>
-        <DialogTitle>Login</DialogTitle>
-            <FormLogin handleClose={handleClose}/>
-      </Dialog>
-    );
-  }
 
 SimpleDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
@@ -35,11 +19,9 @@ SimpleDialog.propTypes = {
 
 const Login = () => {
 
-    const [justifyContent, setJustifyContent] = useState('space-around');
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState(false);
 
     const [open, setOpen] = useState(false);
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -47,21 +29,26 @@ const Login = () => {
   const handleClose = () => {
     setOpen(false);
   };
- console.log(document.cookie);
+
+  const changeTolog = (token) => {
+      setToken(token);
+  }
+
     return (
         <>
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
-                <Toolbar style={{justifyContent: justifyContent}}>
+                <Toolbar style={{justifyContent: 'space-around'}}>
                     <p className='navHeader'>БУХЛИЩЕ ВИНИЩЕ</p>
-                    <Link to={'adminPanel'}><AdminPanelSettingsIcon/></Link>
-                    <LoginIcon className='loginIcon' onClick={handleClickOpen}/>
+                    {token === false ? null : <Link to={'adminPanel'}><AdminPanelSettingsIcon/></Link>}
+                    {token === false ? <LoginIcon fontSize='large' className='loginIcon' onClick={handleClickOpen}/> : <LogoutIcon fontSize='large' className='loginIcon'/>}
                 </Toolbar>
             </AppBar>
         </Box>
         <SimpleDialog
         open={open}
         onClose={handleClose}
+        changeTolog={changeTolog}
       /></>
   );
 }

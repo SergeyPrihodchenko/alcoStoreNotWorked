@@ -2,12 +2,14 @@
 
 namespace Alco\Gallery\Class\Token;
 
+use DateTimeImmutable;
+
 class Token {
     function __construct(
         private string $token,
         private string $name,
         private int $id_user,
-        private string $expiresOn
+        private DateTimeImmutable $expiresOn
     )
     {    
     }
@@ -27,7 +29,7 @@ class Token {
         return $this->id_user;
     }
 
-    public function expiresOn(): string
+    public function expiresOn(): DateTimeImmutable
     {
         return $this->expiresOn;
     }

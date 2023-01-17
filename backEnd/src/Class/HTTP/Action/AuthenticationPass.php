@@ -5,20 +5,21 @@ namespace Alco\Gallery\Class\HTTP\Action;
 use Alco\Gallery\Class\HTTP\Request\Request;
 use Alco\Gallery\Class\HTTP\Response\Response;
 use Alco\Gallery\Class\HTTP\Response\ErrorResponse;
+use Alco\Gallery\Class\HTTP\Response\SuccessfulResponse;
 use Alco\Gallery\Class\Repository\TokensRepository;
 use Alco\Gallery\Class\Repository\UsersRepository;
 use Alco\Gallery\Class\Token\Token;
+use Alco\Gallery\Class\Users\User;
 use DateTimeImmutable;
 use Exception;
 
-class Authentication {
+class AuthenticationPass {
 
     function __construct(
         private UsersRepository $userRepository,
         private TokensRepository $tokensRepository
     )
-    {
-        
+    {      
     }
 
     public function handle(Request $request): Response
@@ -31,8 +32,7 @@ class Authentication {
         }
 
             $name = strip_tags(trim($name));
-            $password = strip_tags(trim($password));
-
+            $password = User::HashPassword(strip_tags(trim($password)));
         try {
             $user = $this->userRepository->getUser($password);
         } catch (Exception $e) {
@@ -49,10 +49,17 @@ class Authentication {
                      (new DateTimeImmutable())->modify('+7 day')
                     ));
         } catch (Exception $e) {
-            return new ErrorResponse(new Exception($e->getMessage()));
+            return new ErrorResponse($e->getMessage());
         }
-            
-
-        setcookie("TokenSet", $token, time()+3600);
+      
+        setcookie("TokenSet", $token, [
+            'expires' => time() + 3600 * 24 * 5,
+            'samesite' => 'Strict'
+        ]);
+        
+        return new SuccessfulResponse([
+            'result' => 'ok',
+            'token' => $token
+        ]);
     }
 }

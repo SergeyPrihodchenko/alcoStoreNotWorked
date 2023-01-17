@@ -41,7 +41,7 @@ class UsersRepository {
             throw new Exception($e->getMessage());
         }
             $user =  new User($result['name'], $result['password']);
-            $user->getId($result['id_user']);
+            $user->getId($result['id']);
             return $user;
     }
 }
