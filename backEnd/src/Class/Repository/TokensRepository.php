@@ -30,9 +30,7 @@ class TokensRepository {
                 :name,
                 :expires_on,
                 :id_user
-            )
-            ON CONFLICT (token) DO UPDATE SET
-            expires_on = :expires_on
+            );
         SQL;
 
             $statement = $this->connect->prepare($query);
@@ -56,6 +54,17 @@ class TokensRepository {
             throw new Exception($token); 
         }
         return new Token($dataToken['token'], $dataToken['name'], $dataToken['id_user'], new DateTimeImmutable($dataToken['expires_on']));
+    }
+
+    public function getId($id): Token
+    {
+        try {
+            $statement = $this->connect->query("SELECT * FROM token WHERE id_user = $id;");
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return new Token($result['token'], $result['name'], $result['id_user'], new DateTimeImmutable($result['expires_on']));
     }
 
 }

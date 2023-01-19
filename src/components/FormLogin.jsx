@@ -19,7 +19,7 @@ const FormLogin = ({handleClose, changeTolog}) => {
             password: valuePassword
         }
         handleClose();
-        const response = await fetch('http://localhost:80', {
+        const response = await fetch('./backEnd/index.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'aplication/json',
@@ -30,8 +30,9 @@ const FormLogin = ({handleClose, changeTolog}) => {
 
         const result = await response.json();
 
-        if(result.result === 'ok') {
+        if(response.result === 'OK') {
             changeTolog(result.token);
+            console.log(document.cookie.TokenSet);
         }
    }
 

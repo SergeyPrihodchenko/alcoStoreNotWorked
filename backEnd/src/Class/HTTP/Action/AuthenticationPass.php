@@ -36,14 +36,24 @@ class AuthenticationPass {
         try {
             $user = $this->userRepository->getUser($password);
         } catch (Exception $e) {
-            return new ErrorResponse(new Exception("Cannot your passwprd"));
+            return new SuccessfulResponse(['result' => 'not', 'error' => $e->getMessage()]);
         }
 
         try {
-            $token = bin2hex(random_bytes(40));
+            if ($token = $this->tokensRepository->getId($user->id())) {
+                if($token->expiresOn()->format(DateTimeImmutable::ATOM) <= (new DateTimeImmutable())->format(DateTimeImmutable::ATOM)) {
+                    
+                }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+        try {
+            $newToken = bin2hex(random_bytes(40));
             $this->tokensRepository->save(
                 new Token(
-                    $token,
+                    $newToken,
                      $user->name(),
                      $user->id(),
                      (new DateTimeImmutable())->modify('+7 day')
@@ -52,10 +62,14 @@ class AuthenticationPass {
             return new ErrorResponse($e->getMessage());
         }
       
-        setcookie("TokenSet", $token, [
+        setcookie("TokenSet", $newToken, [
             'expires' => time() + 3600 * 24 * 5,
+            'path' => '/',
+            'secure' => false,
+            'httponly' => false,
             'samesite' => 'Strict'
         ]);
+
         
         return new SuccessfulResponse([
             'result' => 'ok',
